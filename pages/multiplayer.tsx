@@ -22,7 +22,8 @@ const MultiplayerPage: NextPage = () => {
     error, 
     sendMessage,
     isSpectator,
-    connecting
+    connecting,
+    reconnect
   } = useSocket();
 
   // Handle join game from URL
@@ -63,6 +64,10 @@ const MultiplayerPage: NextPage = () => {
     alert('Game link copied to clipboard!');
   };
 
+  const handleReconnect = () => {
+    reconnect();
+  };
+
   return (
     <div className="min-h-screen py-8">
       <Head>
@@ -86,8 +91,18 @@ const MultiplayerPage: NextPage = () => {
         
         {error && (
           <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-            <p className="font-bold">Error:</p>
-            <p>{error}</p>
+            <div className="flex justify-between items-center">
+              <div>
+                <p className="font-bold">Error:</p>
+                <p>{error}</p>
+              </div>
+              <button 
+                onClick={handleReconnect}
+                className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded"
+              >
+                Reconnect
+              </button>
+            </div>
           </div>
         )}
 
@@ -139,6 +154,16 @@ const MultiplayerPage: NextPage = () => {
                   </button>
                 </div>
               </div>
+            </div>
+
+            <div className="mt-8 text-sm text-gray-600">
+              <p className="mb-2">Tips for a successful connection:</p>
+              <ul className="list-disc pl-5 space-y-1">
+                <li>Use a modern browser (Chrome, Firefox, Edge)</li>
+                <li>Ensure you have a stable internet connection</li>
+                <li>Allow cookies and scripts on this site</li>
+                <li>If you encounter connection issues, try refreshing the page</li>
+              </ul>
             </div>
           </div>
         ) : (

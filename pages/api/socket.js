@@ -14,7 +14,7 @@ export default function SocketHandler(req, res) {
 
   console.log('Setting up socket connection');
   
-  // Set up Socket.IO server
+  // Set up Socket.IO server with more permissive configuration
   const io = new Server(res.socket.server, {
     path: '/socket.io',
     addTrailingSlash: false,
@@ -23,7 +23,20 @@ export default function SocketHandler(req, res) {
       methods: ['GET', 'POST'],
       credentials: true
     },
-    transports: ['websocket', 'polling']
+    // Configure transport preferences and parameters
+    transports: ['polling', 'websocket'],
+    allowEIO3: true, // Allow Engine.IO 3 compatibility
+    connectTimeout: 45000, // Longer timeout for connections
+    pingTimeout: 30000,
+    pingInterval: 25000,
+    upgradeTimeout: 30000,
+    maxHttpBufferSize: 1e8,
+    // Polling-specific options
+    polling: {
+      extraHeaders: {
+        'Access-Control-Allow-Origin': '*'
+      }
+    }
   });
   
   // Store io instance on server
@@ -32,17 +45,23 @@ export default function SocketHandler(req, res) {
   // Socket.IO connection handler
   io.on('connection', (socket) => {
     console.log(`User connected: ${socket.id}`);
+    console.log(`Transport used: ${socket.conn.transport.name}`);
+
+    // Send welcome message to confirm connection
+    socket.emit('welcome', { message: 'Connected to server' });
 
     // Create a new game
     socket.on('create_game', ({ playerName }) => {
       try {
+        console.log(`Creating game for player: ${playerName}`);
         const gameId = Math.random().toString(36).substring(2, 8);
         
         games[gameId] = {
           id: gameId,
           players: [{ id: socket.id, name: playerName, color: 'w' }],
           gameState: null,
-          spectators: []
+          spectators: [],
+          createdAt: new Date()
         };
         
         userGameMap[socket.id] = gameId;
@@ -60,6 +79,7 @@ export default function SocketHandler(req, res) {
     // Join an existing game
     socket.on('join_game', ({ gameId, playerName }) => {
       try {
+        console.log(`${playerName} attempting to join game: ${gameId}`);
         const game = games[gameId];
         
         if (!game) {
@@ -96,6 +116,13 @@ export default function SocketHandler(req, res) {
       } catch (err) {
         console.error('Error joining game:', err);
         socket.emit('error', { message: 'Failed to join game. Please try again.' });
+      }
+    });
+
+    // Heartbeat to keep connection alive
+    socket.on('heartbeat', (callback) => {
+      if (typeof callback === 'function') {
+        callback({ status: 'alive', time: new Date().toISOString() });
       }
     });
 
@@ -181,6 +208,24 @@ export default function SocketHandler(req, res) {
       }
     });
   });
+
+  // Implement lightweight cleanup for stale games
+  setInterval(() => {
+    const now = new Date();
+    const staleGameIds = [];
+    
+    for (const [gameId, game] of Object.entries(games)) {
+      // Remove games older than 4 hours
+      if (now - new Date(game.createdAt) > 4 * 60 * 60 * 1000) {
+        staleGameIds.push(gameId);
+      }
+    }
+    
+    staleGameIds.forEach(gameId => {
+      delete games[gameId];
+      console.log(`Cleaned up stale game: ${gameId}`);
+    });
+  }, 30 * 60 * 1000); // Run every 30 minutes
 
   console.log('Socket server started');
   res.end();
