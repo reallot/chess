@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Chess } from 'chess.js';
+import { Chess, Square as ChessSquare } from 'chess.js';
 import Square from './Square';
 
 interface ChessBoardProps {
@@ -23,8 +23,8 @@ const ChessBoard: React.FC<ChessBoardProps> = ({ width = '100%' }) => {
     if (selectedSquare) {
       try {
         const move = game.move({
-          from: selectedSquare,
-          to: square,
+          from: selectedSquare as ChessSquare,
+          to: square as ChessSquare,
           promotion: 'q', // Always promote to queen for simplicity
         });
 
@@ -40,12 +40,12 @@ const ChessBoard: React.FC<ChessBoardProps> = ({ width = '100%' }) => {
     }
 
     // Check if the clicked square has a piece that can move
-    const piece = game.get(square);
+    const piece = game.get(square as ChessSquare);
     if (piece && piece.color === (game.turn() === 'w' ? 'w' : 'b')) {
       setSelectedSquare(square);
       
       // Get valid moves for this piece
-      const moves = game.moves({ square, verbose: true });
+      const moves = game.moves({ square: square as ChessSquare, verbose: true });
       setValidMoves(moves.map(move => move.to));
     } else {
       setSelectedSquare(null);
@@ -76,7 +76,7 @@ const ChessBoard: React.FC<ChessBoardProps> = ({ width = '100%' }) => {
         const rank = ranks[rankIndex];
         const square = `${file}${rank}`;
         const isLight = (fileIndex + rankIndex) % 2 === 0;
-        const piece = game.get(square);
+        const piece = game.get(square as ChessSquare);
 
         squares.push(
           <Square
