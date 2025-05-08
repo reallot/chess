@@ -1,4 +1,7 @@
-import { Chess, Move, Square, PieceType } from 'chess.js';
+import { Chess, Move, Square } from 'chess.js';
+
+// Define piece type
+type PieceType = 'p' | 'n' | 'b' | 'r' | 'q' | 'k';
 
 // Piece values for evaluation
 const PIECE_VALUES: Record<PieceType, number> = {
@@ -31,7 +34,7 @@ export const evaluateBoard = (game: Chess): number => {
       
       if (piece) {
         // Add or subtract based on piece color
-        const value = PIECE_VALUES[piece.type];
+        const value = PIECE_VALUES[piece.type as PieceType];
         score += piece.color === 'w' ? value : -value;
       }
     }
