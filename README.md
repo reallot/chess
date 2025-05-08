@@ -1,16 +1,28 @@
 # Chess Game
 
-A web-based chess game built with Next.js, React, and chess.js that lets you play against an AI opponent or another player.
+A web-based chess game built with Next.js, React, and chess.js that lets you play against an AI opponent or with friends online via real-time multiplayer.
 
 ## Features
 
+### Single Player
 - Full chess game with all standard rules
 - Play against AI with three difficulty levels
 - Switch sides with the computer
 - Visual indication of available moves
 - Board flipping
 - New game functionality
-- Responsive design
+
+### Multiplayer
+- Real-time gameplay with friends over the internet
+- Create a game and invite friends by sharing a link
+- In-game chat with your opponent
+- Spectator mode for watching games
+- Visual indication of whose turn it is
+- Automatic game state synchronization
+
+### General
+- Clean, responsive design
+- Modern UI with Tailwind CSS
 
 ## Getting Started
 
@@ -46,10 +58,18 @@ yarn dev
 ## How to Play
 
 ### Against Computer
+- Navigate to the "Play vs AI" section
 - Computer plays as black by default
 - Click "Computer: Black" to switch sides
 - Change AI difficulty by clicking the difficulty button (Easy, Medium, Hard)
 - Turn AI on/off with the toggle button
+
+### With Friends Online
+- Navigate to the "Play with a Friend" section
+- Enter your name and create a new game
+- Copy the game link and share it with a friend
+- Your friend can join by opening the link and entering their name
+- Play in real-time with chat functionality
 
 ### Game Controls
 - Click on a piece to select it
@@ -79,6 +99,7 @@ This project can be easily deployed on Vercel:
 - [React](https://reactjs.org/)
 - [TypeScript](https://www.typescriptlang.org/)
 - [chess.js](https://github.com/jhlywa/chess.js)
+- [Socket.IO](https://socket.io/) (for multiplayer)
 - [Tailwind CSS](https://tailwindcss.com/)
 
 ## License
