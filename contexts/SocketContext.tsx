@@ -79,7 +79,7 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       socketRef.current = socketIO;
       
       // Define heartbeatInterval at this scope level so it's accessible in the cleanup function
-      let heartbeatInterval: number;
+      let heartbeatInterval: ReturnType<typeof setInterval>;
 
       // Handle connection events
       socketIO.on('connect', () => {
