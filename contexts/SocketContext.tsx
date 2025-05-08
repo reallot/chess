@@ -77,6 +77,9 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     try {
       const socketIO = io(origin, socketOptions);
       socketRef.current = socketIO;
+      
+      // Define heartbeatInterval at this scope level so it's accessible in the cleanup function
+      let heartbeatInterval: number;
 
       // Handle connection events
       socketIO.on('connect', () => {
@@ -85,7 +88,7 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         setConnecting(false);
         
         // Setup heartbeat to keep connection alive
-        const heartbeatInterval = setInterval(() => {
+        heartbeatInterval = setInterval(() => {
           if (socketIO.connected) {
             socketIO.emit('heartbeat', (response: any) => {
               console.log('Heartbeat response:', response);
@@ -99,14 +102,14 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         });
       });
 
-      socketIO.on('connect_error', (err) => {
+      socketIO.on('connect_error', (err: Error) => {
         console.error('Socket connection error:', err);
         setError(`Connection error: ${err.message}. Please try again.`);
         setConnecting(false);
       });
 
       // Welcome message confirms successful connection
-      socketIO.on('welcome', (data) => {
+      socketIO.on('welcome', (data: any) => {
         console.log('Received welcome from server:', data);
       });
 
@@ -147,7 +150,7 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       });
 
       socketIO.on('message_received', (data: { sender: string; message: string }) => {
-        setMessages((prev) => [...prev, data]);
+        setMessages((prev: Array<{ sender: string; message: string }>) => [...prev, data]);
       });
 
       socketIO.on('player_disconnected', (data: { message: string }) => {
@@ -216,7 +219,7 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     console.log('Sending message in game:', gameId);
     socket.emit('send_message', { gameId, message, sender });
     // Add own message to messages
-    setMessages((prev) => [...prev, { sender, message }]);
+    setMessages((prev: Array<{ sender: string; message: string }>) => [...prev, { sender, message }]);
   };
 
   const gameOver = (gameId: string, result: string) => {
