@@ -1,0 +1,28 @@
+import type { NextPage } from 'next';
+import Head from 'next/head';
+import ChessBoard from '../components/ChessBoard';
+
+const Home: NextPage = () => {
+  return (
+    <div className="min-h-screen py-8">
+      <Head>
+        <title>Chess Game</title>
+        <meta name="description" content="Play chess online" />
+        <link rel="icon" href="/favicon.ico" />
+      </Head>
+
+      <main className="container mx-auto px-4">
+        <h1 className="text-4xl font-bold text-center mb-8">Chess Game</h1>
+        <div className="flex justify-center">
+          <ChessBoard width="600px" />
+        </div>
+      </main>
+
+      <footer className="mt-16 text-center text-gray-500">
+        <p>Created with Next.js and Chess.js</p>
+      </footer>
+    </div>
+  );
+};
+
+export default Home; 

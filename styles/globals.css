@@ -1,0 +1,55 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  @apply bg-gray-100 text-gray-900;
+}
+
+.board {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  grid-template-rows: repeat(8, 1fr);
+  width: 100%;
+  max-width: 600px;
+  aspect-ratio: 1/1;
+}
+
+.square {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+}
+
+.square-light {
+  @apply bg-amber-100;
+}
+
+.square-dark {
+  @apply bg-amber-800;
+}
+
+.square-selected {
+  @apply bg-yellow-300;
+}
+
+.square-valid-move {
+  position: relative;
+}
+
+.square-valid-move::before {
+  content: "";
+  width: 30%;
+  height: 30%;
+  border-radius: 50%;
+  background-color: rgba(0, 0, 0, 0.2);
+  position: absolute;
+}
+
+.piece {
+  width: 80%;
+  height: 80%;
+  cursor: pointer;
+} 
