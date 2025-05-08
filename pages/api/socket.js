@@ -1,44 +1,35 @@
-const { createServer } = require('http');
-const { Server } = require('socket.io');
-const next = require('next');
+import { Server } from 'socket.io';
 
-const dev = process.env.NODE_ENV !== 'production';
-const app = next({ dev });
-const handle = app.getRequestHandler();
-
-const PORT = process.env.PORT || 3000;
-
-// Store game sessions
+// Store game sessions (in-memory storage)
 const games = {};
 const userGameMap = {};
 
-app.prepare().then(() => {
-  const server = createServer((req, res) => {
-    handle(req, res);
-  });
+export default function SocketHandler(req, res) {
+  // Check if socket.io server is already initialized
+  if (res.socket.server.io) {
+    console.log('Socket is already running');
+    res.end();
+    return;
+  }
 
-  // Configure Socket.IO with CORS for production
-  const io = new Server(server, {
+  console.log('Setting up socket connection');
+  
+  // Set up Socket.IO server
+  const io = new Server(res.socket.server, {
+    path: '/socket.io',
+    addTrailingSlash: false,
     cors: {
       origin: '*',
       methods: ['GET', 'POST'],
       credentials: true
     },
-    transports: ['websocket', 'polling'],
-    path: '/socket.io'
+    transports: ['websocket', 'polling']
   });
+  
+  // Store io instance on server
+  res.socket.server.io = io;
 
-  // Debug middleware to log all events
-  io.use((socket, next) => {
-    console.log(`New connection from ${socket.id}`);
-    const clientIp = socket.handshake.headers['x-forwarded-for'] || 
-                    socket.handshake.address;
-                    
-    console.log(`Client IP: ${clientIp}`);
-    console.log(`Transport: ${socket.conn.transport.name}`);
-    next();
-  });
-
+  // Socket.IO connection handler
   io.on('connection', (socket) => {
     console.log(`User connected: ${socket.id}`);
 
@@ -155,13 +146,6 @@ app.prepare().then(() => {
       }
     });
 
-    // Connection health check
-    socket.on('ping', (callback) => {
-      if (typeof callback === 'function') {
-        callback();
-      }
-    });
-
     // Disconnect handling
     socket.on('disconnect', () => {
       try {
@@ -188,19 +172,6 @@ app.prepare().then(() => {
             }
           }
           
-          // Clean up empty games after some time
-          if (game.players.length === 0 || (game.players.length === 1 && game.spectators.length === 0)) {
-            setTimeout(() => {
-              // Double-check if the game is still empty
-              if (games[gameId] && 
-                  (games[gameId].players.length === 0 || 
-                  (games[gameId].players.length === 1 && games[gameId].spectators.length === 0))) {
-                delete games[gameId];
-                console.log(`Game ${gameId} deleted due to inactivity`);
-              }
-            }, 60000); // Wait for 1 minute before deleting
-          }
-          
           delete userGameMap[socket.id];
         }
         
@@ -211,7 +182,6 @@ app.prepare().then(() => {
     });
   });
 
-  server.listen(PORT, () => {
-    console.log(`> Ready on http://localhost:${PORT}`);
-  });
-}); 
+  console.log('Socket server started');
+  res.end();
+} 

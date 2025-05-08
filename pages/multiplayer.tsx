@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { NextPage } from 'next';
 import Head from 'next/head';
+import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useSocket } from '../contexts/SocketContext';
 import MultiplayerChessBoard from '../components/MultiplayerChessBoard';
@@ -20,7 +21,8 @@ const MultiplayerPage: NextPage = () => {
     messages, 
     error, 
     sendMessage,
-    isSpectator
+    isSpectator,
+    connecting
   } = useSocket();
 
   // Handle join game from URL
@@ -35,6 +37,7 @@ const MultiplayerPage: NextPage = () => {
     e.preventDefault();
     if (playerName.trim()) {
       createGame(playerName.trim());
+      console.log("Attempting to create game...");
     }
   };
 
@@ -42,6 +45,7 @@ const MultiplayerPage: NextPage = () => {
     e.preventDefault();
     if (playerName.trim() && joinGameId.trim()) {
       joinGame(joinGameId.trim(), playerName.trim());
+      console.log("Attempting to join game...");
     }
   };
 
@@ -67,11 +71,23 @@ const MultiplayerPage: NextPage = () => {
       </Head>
 
       <main className="container mx-auto px-4">
-        <h1 className="text-4xl font-bold text-center mb-4">Chess Online</h1>
+        <div className="flex justify-between mb-4">
+          <h1 className="text-4xl font-bold text-center">Chess Online</h1>
+          <Link href="/" className="text-blue-500 hover:text-blue-700">
+            ← Back to Home
+          </Link>
+        </div>
+        
+        {connecting && (
+          <div className="bg-blue-100 border border-blue-400 text-blue-700 px-4 py-3 rounded mb-4">
+            Connecting to server... Please wait.
+          </div>
+        )}
         
         {error && (
           <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-            {error}
+            <p className="font-bold">Error:</p>
+            <p>{error}</p>
           </div>
         )}
 
@@ -87,6 +103,7 @@ const MultiplayerPage: NextPage = () => {
                 className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
                 placeholder="Enter your name"
                 required
+                disabled={connecting}
               />
             </div>
 
@@ -95,10 +112,10 @@ const MultiplayerPage: NextPage = () => {
                 <h2 className="text-lg font-semibold mb-2">Create a New Game</h2>
                 <button
                   onClick={handleCreateGame}
-                  disabled={!playerName.trim()}
+                  disabled={!playerName.trim() || connecting}
                   className="w-full bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded disabled:opacity-50"
                 >
-                  Create Game
+                  {connecting ? 'Connecting...' : 'Create Game'}
                 </button>
               </div>
 
@@ -111,13 +128,14 @@ const MultiplayerPage: NextPage = () => {
                     onChange={(e) => setJoinGameId(e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
                     placeholder="Enter game ID"
+                    disabled={connecting}
                   />
                   <button
                     onClick={handleJoinGame}
-                    disabled={!playerName.trim() || !joinGameId.trim()}
+                    disabled={!playerName.trim() || !joinGameId.trim() || connecting}
                     className="w-full bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded disabled:opacity-50"
                   >
-                    Join Game
+                    {connecting ? 'Connecting...' : 'Join Game'}
                   </button>
                 </div>
               </div>
