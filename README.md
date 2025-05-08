@@ -1,10 +1,12 @@
 # Chess Game
 
-A simple web-based chess game built with Next.js, React, and chess.js.
+A web-based chess game built with Next.js, React, and chess.js that lets you play against an AI opponent or another player.
 
 ## Features
 
 - Full chess game with all standard rules
+- Play against AI with three difficulty levels
+- Switch sides with the computer
 - Visual indication of available moves
 - Board flipping
 - New game functionality
@@ -43,11 +45,24 @@ yarn dev
 
 ## How to Play
 
+### Against Computer
+- Computer plays as black by default
+- Click "Computer: Black" to switch sides
+- Change AI difficulty by clicking the difficulty button (Easy, Medium, Hard)
+- Turn AI on/off with the toggle button
+
+### Game Controls
 - Click on a piece to select it
 - Valid moves will be highlighted
 - Click on a highlighted square to move the selected piece
 - Use the "New Game" button to reset the board
 - Use the "Flip Board" button to change perspective
+
+## AI Difficulty Levels
+
+- **Easy**: Makes random moves
+- **Medium**: Makes a mix of best moves and random moves
+- **Hard**: Uses a deeper minimax search to find better moves
 
 ## Deployment
 
